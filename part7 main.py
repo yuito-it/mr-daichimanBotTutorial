@@ -1,3 +1,17 @@
+import discord
+from discord.ext import commands
+import asyncio
+
+
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+@bot.event
+async def on_ready():
+    print("ボットが起動した！")
+
+
+
 @bot.command()
 @commands.has_permissions(administrator=True)
 @commands.has_permissions(manage_channels=True)
@@ -27,3 +41,5 @@ async def purge(ctx, amount:int):
            msg = await ctx.send(f"{deleted_messages} 件のメッセージが削除されました。 \n\n{final_string}")
            await asyncio.sleep(2)
            await msg.delete()
+
+bot.run("TOKEN")

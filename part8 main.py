@@ -3,6 +3,8 @@ from discord.ext import commands
 import json
 import re
 import urllib
+import Request
+import urlopen
 
 
 intents = discord.Intents.all()

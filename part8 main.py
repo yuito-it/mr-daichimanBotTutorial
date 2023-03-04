@@ -3,19 +3,11 @@ from discord.ext import commands
 import json
 import re
 import urllib
-import Request
-import urlopen
 
+bot = commands.Bot(command_prefix="!")
+bot.remove_command("help")
 
-intents = discord.Intents.all()
-bot = commands.Bot(command_prefix="!", intents=intents)
-
-@bot.event
-async def on_ready():
-    print("ボットが起動した！")
-
-
-
+#citycodesは47都道府県のも対応
 citycodes = {
     "北海道":"016010",
     "青森":"020010",
@@ -66,30 +58,35 @@ citycodes = {
     "沖縄":"471010",    
 }
 
+@bot.event
+async def on_ready():
+    print("起動完了")
 
+@bot.command()
+async def test(ctx):
+    await ctx.send("test.ok!")
 
-@bot.listen("on_message")
+@bot.event
 async def on_message(message):
     #Botのメッセージは無視
     if message.author.bot:
         return
+    #天気Bot
     reg_res = re.compile(u"(.+)の天気は？").search(message.content)
     if reg_res:
+
       if reg_res.group(1) in citycodes.keys():
+
         citycode = citycodes[reg_res.group(1)]
-        resp = Request(f'https://weather.tsukumijima.net/api/forecast/city/{citycode}', headers={'User-Agent': 'Mozilla/5.0'})
-        resp = urlopen(resp).read()
+        resp = urllib.request.urlopen(f"https://weather.tsukumijima.net/api/forecast/city/{citycode}").read()
         resp = json.loads(resp.decode("utf-8"))
-        embed = discord.Embed(title= resp["title"],description= "__【お天気情報：**" + resp["location"]["city"] + "**】__\n",color=0x3683ff)
+        msg = "__【お天気情報：**" + resp["location"]["city"] + "**】__\n"
         for f in resp["forecasts"]:
-         embed.add_field(name=f["dateLabel"] + "：",value=f["telop"],inline=True)
-         embed.add_field(name="天気：",value=f["detail"]["weather"],inline=True)
-         embed.add_field(name="風：",value=f["detail"]["wind"],inline=True)
-        embed.add_field(name="説明：",value="```" + resp["description"]["bodyText"] + "```",inline=False)
-        string = resp["forecasts"][0]["image"]["url"]
-        embed.set_image(url=string[0:45] + "png")
-        embed.set_thumbnail(url=resp["forecasts"][0]["image"]["url"])
-        await message.channel.send(embed=embed)
+          msg += f["dateLabel"] + "：**" + f["telop"] + "**\n"
+        msg += "```" + resp["description"]["bodyText"] + "```"
+
+        await message.channel.send(msg)
+
       else:
         await message.channel.send("そこの天気はわかりません...")
 

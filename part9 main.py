@@ -1,8 +1,5 @@
 import discord
 from discord.ext import commands
-from discord.ui.item import Item
-
-
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)

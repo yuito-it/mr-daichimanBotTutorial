@@ -2,15 +2,12 @@ import discord
 from discord.ext import commands
 import asyncio
 
-
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready():
     print("ボットが起動した！")
-
-
 
 @bot.command()
 @commands.has_permissions(administrator=True)
